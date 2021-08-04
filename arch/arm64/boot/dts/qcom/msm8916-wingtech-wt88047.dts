@@ -24,7 +24,7 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
-/*
+
 		framebuffer0: framebuffer@83200000 {
 			status = "okay";
 			compatible = "simple-framebuffer";
@@ -34,19 +34,26 @@
 			stride = <(720 * 3)>;
 			format = "r8g8b8";
 			power-domains = <&gcc MDSS_GDSC>;
+			clocks = <&gcc GCC_MDSS_AHB_CLK>,
+				 <&gcc GCC_MDSS_VSYNC_CLK>,
+				 <&gcc GCC_MDSS_AXI_CLK>,
+				 <&gcc GCC_MDSS_MDP_CLK>,
+				 <&gcc GCC_MDSS_BYTE0_CLK>,
+				 <&gcc GCC_MDSS_PCLK0_CLK>,
+				 <&gcc GCC_MDSS_ESC0_CLK>;
 		};
-*/
+
 	};
 
 	reserved-memory {
 		/delete-node/ wcnss@89300000;
 		/delete-node/ venus@89900000;
-/*		
+	
 		framebuffer@83000000 {
 			reg = <0x0 0x83000000 0x0 0x1400000>;
 			no-map;
 		};
-*/
+
 		mpss_mem: gps_mem: mpss@86800000 {
 			status = "disabled";
 			reg = <0x0 0x86800000 0x0 0x5100000>;
@@ -89,15 +96,6 @@
 		sound-name-prefix = "Headphones Switch";
 	};
 
-	backlight: backlight {
-		compatible = "pwm-backlight";
-		pwms = <&pm8916_pwm 0 100000>;
-
-		brightness-levels = <0 255>;
-		num-interpolated-steps = <255>;
-		default-brightness-level = <255>;
-	};
-
 	gpio-keys {
 		compatible = "gpio-keys";
 
@@ -119,129 +117,11 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&usb_id_default>;
 	};
-// WIP WIP WIP
-	camera_vdddo_1v8: camera-vdddo-1v8 {
-		compatible = "regulator-fixed";
-		regulator-name = "camera_vdddo";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
-	};
-
-	camera_vdda_2v8: camera-vdda-2v8 {
-		compatible = "regulator-fixed";
-		regulator-name = "camera_vdda";
-		regulator-min-microvolt = <2800000>;
-		regulator-max-microvolt = <2800000>;
-		regulator-always-on;
-	};
-
-	camera_vddd_1v5: camera-vddd-1v5 {
-		compatible = "regulator-fixed";
-		regulator-name = "camera_vddd";
-		regulator-min-microvolt = <1500000>;
-		regulator-max-microvolt = <1500000>;
-		regulator-always-on;
-	};	
-// WIP WIP WIP
 	
+
+		
 };
 
-// WIP WIP WIP
-
-&cci {
-	status = "okay";
-};
-
-&cci_i2c0 {
-	status = "okay";
-	
-	ov2680@20 {
-		compatible = "ovti,ov2680";
-		reg = <0x20>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&ov2680_pwdn_default>, <&ov2680_mclk_default>;
-
-		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-		clock-names = "xvclk";
-		status = "okay";
-
-		avdd-supply = <&pm8916_l17>;
-		dovdd-supply = <&pm8916_l6>;
-		dvdd-supply = <&pm8916_l2>;
-		
-		vdddo-supply = <&camera_vdddo_1v8>;
-		vdda-supply = <&camera_vdda_2v8>;
-		vddd-supply = <&camera_vddd_1v5>;
-		
-		enable-gpios = <&msmgpio 34 GPIO_ACTIVE_HIGH>;
-		reset-gpios = <&msmgpio 28 GPIO_ACTIVE_LOW>;
-
-		port {
-			ov2680_ep: endpoint {
-				remote-endpoint = <&csiphy0_ep>;
-				data-lanes = <0 2>;
-			};
-		};
-	};
-	
-	ov8865@6c {
-		compatible = "ovti,ov8865";
-		reg = <0x6c>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&ov8865_pwdn_default>, <&ov8865_mclk_default>;
-
-		clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
-		clock-names = "xvclk";
-		status = "okay";
-
-		avdd-supply = <&pm8916_l17>;
-		dovdd-supply = <&pm8916_l6>;
-		dvdd-supply = <&pm8916_l2>;
-		
-		vdddo-supply = <&camera_vdddo_1v8>;
-		vdda-supply = <&camera_vdda_2v8>;
-		vddd-supply = <&camera_vddd_1v5>;
-		
-		enable-gpios = <&msmgpio 33 GPIO_ACTIVE_HIGH>;
-		reset-gpios = <&msmgpio 35 GPIO_ACTIVE_LOW>;
-
-		port {
-			ov8865_ep: endpoint {
-				remote-endpoint = <&csiphy1_ep>;
-				data-lanes = <0 1 2 3>;
-			};
-		};
-	};
-};
-
-&camss {
-	status = "okay";
-
-	ports {
-		port@0 {
-			reg = <0>;
-			csiphy0_ep: endpoint {
-				clock_lanes = <1>;
-				data-lanes = <0 2>;
-				remote-endpoint = <&ov2680_ep>;
-				status = "okay";
-			};
-		};
-		
-		port@1 {
-			reg = <1>;
-			csiphy1_ep: endpoint {
-				clock_lanes = <1>;
-				data-lanes = <0 1 2 3>;
-				remote-endpoint = <&ov8865_ep>;
-				status = "okay";
-			};
-		};
-	};
-};
-
-// WIP WIP WIP
 
 &blsp_i2c2 {
 	status = "okay";
@@ -383,51 +263,6 @@
 	status = "okay";
 };
 
-&dsi0 {
-	status = "okay";
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&mdss_active>;
-	pinctrl-1 = <&mdss_suspend>;
-
-	panel@0 {
-		compatible = "wingtech,wt88047-panel";
-		reg = <0>;
-
-		backlight = <&backlight>;
-		power-supply = <&pm8916_l17>;
-		reset-gpios = <&msmgpio 25 GPIO_ACTIVE_LOW>;
-
-		port {
-			panel_in: endpoint {
-				remote-endpoint = <&dsi0_out>;
-			};
-		};
-	};
-};
-
-&dsi0_out {
-	status = "okay";
-	data-lanes = <0 1 2>;
-	remote-endpoint = <&panel_in>;
-};
-
-
-&dsi_phy0 {
-	status = "okay";
-	qcom,dsi-phy-regulator-ldo-mode;
-};
-
-
-&lpass {
-	status = "okay";
-};
-
-
-&mdss {
-	status = "okay";
-};
-
-
 &pm8916_pwm {
 	status = "okay";
 	pinctrl-names = "default";
@@ -519,6 +354,14 @@
 	qcom,mbhc-vthreshold-low = <75 100 120 180 500>;
 	qcom,mbhc-vthreshold-high = <75 100 120 180 500>;
 	qcom,hphl-jack-type-normally-open;
+};
+
+&gpu {
+	status = "disabled";
+};
+
+&gpu_iommu {
+	status = "disabled";
 };
 
 &smd_rpm_regulators {
@@ -616,6 +459,7 @@
 	l17 {
 		regulator-min-microvolt = <2850000>;
 		regulator-max-microvolt = <2850000>;
+		regulator-always-on;
 	};
 
 	l18 {
@@ -647,23 +491,6 @@
 
 		drive-strength = <2>;
 		bias-disable;
-	};
-
-	mdss {
-		mdss_active: mdss-active {
-			pins = "gpio25";
-			function = "gpio";
-
-			drive-strength = <8>;
-			bias-disable;
-		};
-		mdss_suspend: mdss-suspend {
-			pins = "gpio25";
-			function = "gpio";
-
-			drive-strength = <2>;
-			bias-pull-down;
-		};
 	};
 
 	smb_int_default: smb_int_default {
@@ -705,41 +532,6 @@
 		drive-strength = <8>;
 		bias-pull-up;
 	};
-
-// WIP WIP WIP
-	
-	ov2680_mclk_default: ov2680_mclk_default {
-		pins = "gpio27";
-		function = "cam_mclk1";
-		drive-strength = <16>;
-		bias-disable;
-	};
-
-	
-	ov8865_mclk_default: ov8865_mclk_default {
-		pins = "gpio26";
-		function = "cam_mclk0";
-		drive-strength = <16>;
-		bias-disable;
-	};
-
-	ov2680_pwdn_default: ov2680_pwdn_default {
-		pins = "gpio33";
-		function = "gpio";
-		drive-strength = <2>;
-		bias-disable;
-		output-low;
-	};
-	
-	ov8865_pwdn_default: ov8865_pwdn_default {
-		pins = "gpio34";
-		function = "gpio";
-		drive-strength = <2>;
-		bias-disable;
-		output-low;
-	};
-
-//WIP WIP WIP
 
 };
 

@@ -7,19 +7,6 @@
 	vdda-supply = <&pm8916_l2>;
 };
 
-&dsi0 {
-	vdda-supply = <&pm8916_l2>;
-	vddio-supply = <&pm8916_l6>;
-};
-
-&dsi_phy0 {
-	vddio-supply = <&pm8916_l6>;
-};
-
-&mpss {
-	pll-supply = <&pm8916_l7>;
-};
-
 &pronto {
 	vddpx-supply = <&pm8916_l7>;
 
